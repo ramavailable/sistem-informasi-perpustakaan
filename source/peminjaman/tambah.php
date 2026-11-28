@@ -62,7 +62,7 @@ require __DIR__ . '/../includes/header.php';
         <div class="mb-3">
             <label class="form-label">Anggota *</label>
             <select name="anggota_id" class="form-select" required>
-                <option value="">— Pilih Anggota —</option>
+                <option value="">Pilih Anggota</option>
                 <?php foreach ($anggota as $a): ?>
                     <option value="<?= (int) $a['id'] ?>"><?= e($a['nama']) ?> (<?= e($a['nomor_anggota']) ?>)</option>
                 <?php endforeach; ?>
@@ -71,9 +71,9 @@ require __DIR__ . '/../includes/header.php';
         <div class="mb-3">
             <label class="form-label">Buku *</label>
             <select name="buku_id" class="form-select" required>
-                <option value="">— Pilih Buku —</option>
+                <option value="">Pilih Buku</option>
                 <?php foreach ($buku as $b): ?>
-                    <option value="<?= (int) $b['id'] ?>"><?= e($b['judul']) ?> — <?= e($b['penulis']) ?> (stok: <?= (int) $b['stok'] ?>)</option>
+                    <option value="<?= (int) $b['id'] ?>"><?= e($b['judul']) ?>, <?= e($b['penulis']) ?> (stok: <?= (int) $b['stok'] ?>)</option>
                 <?php endforeach; ?>
             </select>
             <div class="form-text">Hanya buku yang stoknya tersedia yang ditampilkan.</div>

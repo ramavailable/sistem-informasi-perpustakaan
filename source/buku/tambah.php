@@ -56,7 +56,7 @@ require __DIR__ . '/../includes/header.php';
             <div class="col-md-4 mb-3">
                 <label class="form-label">Kategori</label>
                 <select name="kategori_id" class="form-select">
-                    <option value="">— Pilih Kategori —</option>
+                    <option value="">Pilih Kategori</option>
                     <?php foreach ($kategori as $k): ?>
                         <option value="<?= (int) $k['id'] ?>"><?= e($k['nama']) ?></option>
                     <?php endforeach; ?>

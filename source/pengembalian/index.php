@@ -1,6 +1,6 @@
 <?php
 /**
- * Pengembalian — daftar peminjaman aktif + proses pengembalian.
+ * Pengembalian: daftar peminjaman aktif + proses pengembalian.
  * Denda = hari terlambat x DENDA_PER_HARI (Rp1.000/hari), dihitung otomatis.
  * Stok buku bertambah 1 saat buku dikembalikan.
  */
@@ -67,7 +67,7 @@ require __DIR__ . '/../includes/header.php';
 <?php if ($pesan): ?><div class="alert alert-danger"><?= e($pesan) ?></div><?php endif; ?>
 
 <div class="card mb-4">
-    <div class="card-header"><i class="bi bi-arrow-return-left"></i> Peminjaman Aktif — Siap Dikembalikan</div>
+    <div class="card-header"><i class="bi bi-arrow-return-left"></i> Peminjaman Aktif: Siap Dikembalikan</div>
     <div class="card-body p-0">
         <table class="table table-striped table-hover mb-0">
             <thead><tr>
@@ -76,7 +76,12 @@ require __DIR__ . '/../includes/header.php';
             </tr></thead>
             <tbody>
             <?php if (empty($aktif)): ?>
-                <tr><td colspan="7" class="text-center text-muted py-3">Tidak ada peminjaman aktif.</td></tr>
+                <tr><td colspan="7"><div class="empty-state">
+                    <p>Tidak ada peminjaman aktif. Semua buku sudah kembali.</p>
+                    <?php if (can($pdo, 'peminjaman.create')): ?>
+                        <p><a href="<?= url('/peminjaman/tambah.php') ?>" class="btn btn-primary btn-sm">Tambah Peminjaman</a></p>
+                    <?php endif; ?>
+                </div></td></tr>
             <?php else: ?>
                 <?php foreach ($aktif as $row): $st = statusPeminjaman($row); $dendaHariIni = hitungDenda($row['tanggal_jatuh_tempo'], date('Y-m-d')); ?>
                 <tr>
@@ -84,7 +89,7 @@ require __DIR__ . '/../includes/header.php';
                     <td><?= e($row['judul_buku']) ?></td>
                     <td><?= tglIndo($row['tanggal_pinjam']) ?></td>
                     <td><?= tglIndo($row['tanggal_jatuh_tempo']) ?></td>
-                    <td><span class="badge bg-<?= $st['class'] ?>"><?= $st['label'] ?></span></td>
+                    <td><span class="stamp stamp-<?= $st['class'] ?>"><?= $st['label'] ?></span></td>
                     <td><?= rupiah($dendaHariIni) ?></td>
                     <td>
                         <form method="post" action="<?= url('/pengembalian/index.php') ?>" class="d-flex gap-1">
@@ -114,7 +119,9 @@ require __DIR__ . '/../includes/header.php';
             <thead><tr><th>Anggota</th><th>Buku</th><th>Tgl Kembali</th><th>Denda</th></tr></thead>
             <tbody>
             <?php if (empty($riwayat)): ?>
-                <tr><td colspan="4" class="text-center text-muted py-3">Belum ada pengembalian.</td></tr>
+                <tr><td colspan="4"><div class="empty-state">
+                    <p>Belum ada pengembalian. Riwayat muncul setelah ada buku yang dikembalikan.</p>
+                </div></td></tr>
             <?php else: ?>
                 <?php foreach ($riwayat as $row): ?>
                 <tr>

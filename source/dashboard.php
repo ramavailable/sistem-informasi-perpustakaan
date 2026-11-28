@@ -1,13 +1,17 @@
 <?php
-/** Dashboard — ringkasan statistik dan peminjaman terbaru. */
+/** Meja Pustakawan: yang kembali hari ini, yang terlambat, yang baru dipinjam. */
 require __DIR__ . '/config/database.php';
 require __DIR__ . '/includes/auth.php';
 requirePermission($pdo, 'dashboard.view');
 
-$title = 'Dashboard';
 $user = currentUser();
+$punyaAnggota = isRole('Anggota') && !empty($user['anggota_id']);
+$paramsAnggota = $punyaAnggota ? [(int) $user['anggota_id']] : [];
 
-// Statistik umum (Admin & Pustakawan melihat semua data)
+$title = $punyaAnggota ? 'Pinjaman Saya' : 'Meja Pustakawan';
+$subtitle = tglIndo(date('Y-m-d'));
+
+// Angka ringkas (Admin & Pustakawan melihat semua data).
 $totalBuku    = (int) $pdo->query('SELECT COUNT(*) FROM buku')->fetchColumn();
 $totalAnggota = (int) $pdo->query('SELECT COUNT(*) FROM anggota')->fetchColumn();
 $pinjamAktif  = (int) $pdo->query("SELECT COUNT(*) FROM peminjaman WHERE tanggal_kembali IS NULL")->fetchColumn();
@@ -16,98 +20,127 @@ $terlambat    = (int) $pdo->query(
 )->fetchColumn();
 $totalDenda   = (int) $pdo->query('SELECT COALESCE(SUM(denda),0) FROM peminjaman')->fetchColumn();
 
-// Peminjaman terbaru. Role Anggota hanya melihat pinjamannya sendiri.
-if (isRole('Anggota') && !empty($user['anggota_id'])) {
-    $stmt = $pdo->prepare(
-        'SELECT p.*, a.nama AS nama_anggota, b.judul AS judul_buku
-         FROM peminjaman p
-         JOIN anggota a ON a.id = p.anggota_id
-         JOIN buku b ON b.id = p.buku_id
-         WHERE p.anggota_id = ?
-         ORDER BY p.created_at DESC LIMIT 10'
-    );
-    $stmt->execute([$user['anggota_id']]);
-    $pinjamanTerbaru = $stmt->fetchAll();
-    // Statistik personal untuk Anggota
+// Statistik personal untuk Anggota.
+if ($punyaAnggota) {
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM peminjaman WHERE anggota_id = ? AND tanggal_kembali IS NULL");
-    $stmt->execute([$user['anggota_id']]);
+    $stmt->execute([(int) $user['anggota_id']]);
     $pinjamAktif = (int) $stmt->fetchColumn();
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM peminjaman WHERE anggota_id = ? AND tanggal_kembali IS NULL AND tanggal_jatuh_tempo < CURDATE()");
-    $stmt->execute([$user['anggota_id']]);
+    $stmt->execute([(int) $user['anggota_id']]);
     $terlambat = (int) $stmt->fetchColumn();
     $stmt = $pdo->prepare('SELECT COALESCE(SUM(denda),0) FROM peminjaman WHERE anggota_id = ?');
-    $stmt->execute([$user['anggota_id']]);
+    $stmt->execute([(int) $user['anggota_id']]);
     $totalDenda = (int) $stmt->fetchColumn();
-} else {
-    $pinjamanTerbaru = $pdo->query(
-        'SELECT p.*, a.nama AS nama_anggota, b.judul AS judul_buku
-         FROM peminjaman p
-         JOIN anggota a ON a.id = p.anggota_id
-         JOIN buku b ON b.id = p.buku_id
-         ORDER BY p.created_at DESC LIMIT 10'
-    )->fetchAll();
 }
+
+$baseSelect = 'SELECT p.*, a.nama AS nama_anggota, b.judul AS judul_buku
+     FROM peminjaman p
+     JOIN anggota a ON a.id = p.anggota_id
+     JOIN buku b ON b.id = p.buku_id';
+
+// Jatuh tempo hari ini, belum dikembalikan.
+$stmt = $pdo->prepare($baseSelect . ' WHERE p.tanggal_kembali IS NULL AND p.tanggal_jatuh_tempo = CURDATE()'
+    . ($punyaAnggota ? ' AND p.anggota_id = ?' : '') . ' ORDER BY a.nama LIMIT 5');
+$stmt->execute($paramsAnggota);
+$hariIni = $stmt->fetchAll();
+$hariIniTotal = (int) $pdo->query(
+    'SELECT COUNT(*) FROM peminjaman WHERE tanggal_kembali IS NULL AND tanggal_jatuh_tempo = CURDATE()'
+    . ($punyaAnggota ? ' AND anggota_id = ' . (int) $user['anggota_id'] : '')
+)->fetchColumn();
+
+// Terlambat, belum dikembalikan (paling lama dulu).
+$stmt = $pdo->prepare($baseSelect . ' WHERE p.tanggal_kembali IS NULL AND p.tanggal_jatuh_tempo < CURDATE()'
+    . ($punyaAnggota ? ' AND p.anggota_id = ?' : '') . ' ORDER BY p.tanggal_jatuh_tempo ASC LIMIT 5');
+$stmt->execute($paramsAnggota);
+$terlambatList = $stmt->fetchAll();
+
+// Baru dipinjam (masih aktif).
+$stmt = $pdo->prepare($baseSelect . ' WHERE p.tanggal_kembali IS NULL'
+    . ($punyaAnggota ? ' AND p.anggota_id = ?' : '') . ' ORDER BY p.tanggal_pinjam DESC, p.created_at DESC LIMIT 5');
+$stmt->execute($paramsAnggota);
+$baruDipinjam = $stmt->fetchAll();
 
 require __DIR__ . '/includes/header.php';
 ?>
 
-<div class="alert alert-light border">
-    Selamat datang, <strong><?= e($user['name']) ?></strong>! Anda login sebagai
-    <span class="badge bg-primary"><?= e($user['role_name']) ?></span>.
-</div>
-
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card text-bg-primary"><div class="card-body">
-            <h6 class="card-title"><i class="bi bi-journal-bookmark"></i> Total Buku</h6>
-            <p class="card-text fs-3 mb-0"><?= $totalBuku ?></p>
-        </div></div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-bg-success"><div class="card-body">
-            <h6 class="card-title"><i class="bi bi-people"></i> Total Anggota</h6>
-            <p class="card-text fs-3 mb-0"><?= $totalAnggota ?></p>
-        </div></div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-bg-warning"><div class="card-body">
-            <h6 class="card-title"><i class="bi bi-arrow-left-right"></i> Dipinjam Aktif</h6>
-            <p class="card-text fs-3 mb-0"><?= $pinjamAktif ?></p>
-        </div></div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-bg-danger"><div class="card-body">
-            <h6 class="card-title"><i class="bi bi-exclamation-triangle"></i> Terlambat</h6>
-            <p class="card-text fs-3 mb-0"><?= $terlambat ?></p>
-            <small>Total denda: <?= rupiah($totalDenda) ?></small>
-        </div></div>
-    </div>
-</div>
-
-<div class="card">
-    <div class="card-header"><i class="bi bi-clock-history"></i> Peminjaman Terbaru</div>
-    <div class="card-body p-0">
-        <table class="table table-striped mb-0">
-            <thead><tr>
-                <th>Anggota</th><th>Buku</th><th>Tgl Pinjam</th><th>Jatuh Tempo</th><th>Status</th>
-            </tr></thead>
-            <tbody>
-            <?php if (empty($pinjamanTerbaru)): ?>
-                <tr><td colspan="5" class="text-center text-muted py-3">Belum ada data peminjaman.</td></tr>
+<div class="desk">
+    <section class="card desk-col">
+        <div class="card-header">Kembali hari ini <span class="desk-count"><?= $hariIniTotal ?></span></div>
+        <div class="card-body">
+            <?php if (empty($hariIni)): ?>
+                <p class="desk-empty">Tidak ada buku yang jatuh tempo hari ini.</p>
             <?php else: ?>
-                <?php foreach ($pinjamanTerbaru as $row): $st = statusPeminjaman($row); ?>
-                <tr>
-                    <td><?= e($row['nama_anggota']) ?></td>
-                    <td><?= e($row['judul_buku']) ?></td>
-                    <td><?= tglIndo($row['tanggal_pinjam']) ?></td>
-                    <td><?= tglIndo($row['tanggal_jatuh_tempo']) ?></td>
-                    <td><span class="badge bg-<?= $st['class'] ?>"><?= $st['label'] ?></span></td>
-                </tr>
+                <?php foreach ($hariIni as $row): ?>
+                <div class="desk-row">
+                    <div class="desk-row-main">
+                        <strong><?= e($punyaAnggota ? $row['judul_buku'] : $row['nama_anggota']) ?></strong>
+                        <span class="desk-book"><?= e($punyaAnggota ? 'Jatuh tempo hari ini' : $row['judul_buku']) ?></span>
+                    </div>
+                    <?php if (!$punyaAnggota): ?>
+                        <a href="<?= url('/pengembalian/index.php') ?>" class="btn btn-sm btn-outline-secondary">Proses</a>
+                    <?php endif; ?>
+                </div>
                 <?php endforeach; ?>
+                <?php if ($hariIniTotal > count($hariIni)): ?>
+                    <a href="<?= url('/pengembalian/index.php') ?>" class="desk-more">Lihat semua (<?= $hariIniTotal ?>)</a>
+                <?php endif; ?>
             <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
+        </div>
+    </section>
+
+    <section class="card desk-col<?= $terlambat > 0 ? ' desk-col-hot' : '' ?>">
+        <div class="card-header">Terlambat <span class="desk-count"><?= $terlambat ?></span></div>
+        <div class="card-body">
+            <?php if (empty($terlambatList)): ?>
+                <p class="desk-empty">Tidak ada yang terlambat. Semua kembali tepat waktu.</p>
+            <?php else: ?>
+                <?php foreach ($terlambatList as $row): $dendaRow = hitungDenda($row['tanggal_jatuh_tempo'], date('Y-m-d')); ?>
+                <div class="desk-row">
+                    <div class="desk-row-main">
+                        <strong><?= e($punyaAnggota ? $row['judul_buku'] : $row['nama_anggota']) ?></strong>
+                        <?php if (!$punyaAnggota): ?>
+                            <span class="desk-book"><?= e($row['judul_buku']) ?></span>
+                        <?php endif; ?>
+                        <span class="desk-book">Jatuh tempo <?= tglIndo($row['tanggal_jatuh_tempo']) ?></span>
+                    </div>
+                    <span class="desk-meta"><span class="denda"><?= rupiah($dendaRow) ?></span></span>
+                </div>
+                <?php endforeach; ?>
+                <a href="<?= url('/peminjaman/index.php') ?>?status=terlambat" class="desk-more">Lihat semua yang terlambat</a>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <section class="card desk-col">
+        <div class="card-header"><?= $punyaAnggota ? 'Sedang dipinjam' : 'Baru dipinjam' ?> <span class="desk-count"><?= $pinjamAktif ?></span></div>
+        <div class="card-body">
+            <?php if (empty($baruDipinjam)): ?>
+                <p class="desk-empty"><?= $punyaAnggota ? 'Anda tidak sedang meminjam buku.' : 'Belum ada peminjaman aktif.' ?></p>
+                <?php if (!$punyaAnggota && can($pdo, 'peminjaman.create')): ?>
+                    <p><a href="<?= url('/peminjaman/tambah.php') ?>" class="btn btn-primary btn-sm">Tambah Peminjaman</a></p>
+                <?php endif; ?>
+            <?php else: ?>
+                <?php foreach ($baruDipinjam as $row): ?>
+                <div class="desk-row">
+                    <div class="desk-row-main">
+                        <strong><?= e($punyaAnggota ? $row['judul_buku'] : $row['nama_anggota']) ?></strong>
+                        <span class="desk-book"><?= e($punyaAnggota ? 'Jatuh tempo ' . tglIndo($row['tanggal_jatuh_tempo']) : $row['judul_buku']) ?></span>
+                    </div>
+                    <span class="desk-meta"><?= tglIndo($row['tanggal_pinjam']) ?></span>
+                </div>
+                <?php endforeach; ?>
+                <a href="<?= url('/peminjaman/index.php') ?>" class="desk-more">Lihat semua</a>
+            <?php endif; ?>
+        </div>
+    </section>
 </div>
+
+<p class="desk-totals text-muted">
+    <?php if ($punyaAnggota): ?>
+        Koleksi <?= $totalBuku ?> buku. Anda meminjam <?= $pinjamAktif ?> buku, <?= $terlambat ?> terlambat, total denda <?= rupiah($totalDenda) ?>.
+    <?php else: ?>
+        Koleksi <?= $totalBuku ?> buku, <?= $totalAnggota ?> anggota, <?= $pinjamAktif ?> sedang dipinjam, <?= $terlambat ?> terlambat.
+    <?php endif; ?>
+</p>
 
 <?php require __DIR__ . '/includes/footer.php'; ?>

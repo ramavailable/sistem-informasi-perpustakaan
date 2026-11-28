@@ -38,12 +38,17 @@ require __DIR__ . '/../includes/header.php';
             </tr></thead>
             <tbody>
             <?php if (empty($anggota)): ?>
-                <tr><td colspan="6" class="text-center text-muted py-3">Tidak ada data anggota.</td></tr>
+                <tr><td colspan="6"><div class="empty-state">
+                    <p>Belum ada anggota yang terdaftar.</p>
+                    <?php if (can($pdo, 'anggota.create')): ?>
+                        <p><a href="<?= url('/anggota/tambah.php') ?>" class="btn btn-primary btn-sm">Tambah Anggota</a></p>
+                    <?php endif; ?>
+                </div></td></tr>
             <?php else: ?>
                 <?php foreach ($anggota as $i => $row): ?>
                 <tr>
                     <td><?= $i + 1 ?></td>
-                    <td><span class="badge bg-secondary"><?= e($row['nomor_anggota']) ?></span></td>
+                    <td><span class="mono"><?= e($row['nomor_anggota']) ?></span></td>
                     <td><?= e($row['nama']) ?></td>
                     <td><?= e($row['telepon']) ?></td>
                     <td><?= e($row['alamat']) ?></td>

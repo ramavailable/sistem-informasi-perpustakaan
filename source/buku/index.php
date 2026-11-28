@@ -46,7 +46,12 @@ require __DIR__ . '/../includes/header.php';
             </tr></thead>
             <tbody>
             <?php if (empty($buku)): ?>
-                <tr><td colspan="8" class="text-center text-muted py-3">Tidak ada data buku.</td></tr>
+                <tr><td colspan="8"><div class="empty-state">
+                    <p>Belum ada buku di katalog.</p>
+                    <?php if (can($pdo, 'buku.create')): ?>
+                        <p><a href="<?= url('/buku/tambah.php') ?>" class="btn btn-primary btn-sm">Tambah Buku</a></p>
+                    <?php endif; ?>
+                </div></td></tr>
             <?php else: ?>
                 <?php foreach ($buku as $i => $row): ?>
                 <tr>
@@ -56,7 +61,7 @@ require __DIR__ . '/../includes/header.php';
                     <td><?= e($row['penerbit']) ?></td>
                     <td><?= e($row['tahun']) ?></td>
                     <td><?= e($row['nama_kategori']) ?></td>
-                    <td><span class="badge <?= $row['stok'] > 0 ? 'bg-success' : 'bg-danger' ?>"><?= (int) $row['stok'] ?></span></td>
+                    <td><?php if ((int) $row['stok'] > 0): ?><span class="mono"><?= (int) $row['stok'] ?></span> <span class="text-muted small">tersedia</span><?php else: ?><span class="stamp stamp-danger">Habis</span><?php endif; ?></td>
                     <td>
                         <?php if (can($pdo, 'buku.edit')): ?>
                             <a href="<?= url('/buku/edit.php') ?>?id=<?= (int) $row['id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i> Edit</a>

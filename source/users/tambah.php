@@ -61,16 +61,16 @@ require __DIR__ . '/../includes/header.php';
         <div class="mb-3">
             <label class="form-label">Role *</label>
             <select name="role_id" class="form-select" required>
-                <option value="">— Pilih Role —</option>
+                <option value="">Pilih Role</option>
                 <?php foreach ($roles as $r): ?>
-                    <option value="<?= (int) $r['id'] ?>"><?= e($r['name']) ?> — <?= e($r['description']) ?></option>
+                    <option value="<?= (int) $r['id'] ?>"><?= e($r['name']) ?> (<?= e($r['description']) ?>)</option>
                 <?php endforeach; ?>
             </select>
         </div>
         <div class="mb-3">
             <label class="form-label">Terhubung ke Data Anggota (opsional)</label>
             <select name="anggota_id" class="form-select">
-                <option value="">— Tidak terhubung —</option>
+                <option value="">Tidak terhubung</option>
                 <?php foreach ($anggota as $a): ?>
                     <option value="<?= (int) $a['id'] ?>"><?= e($a['nama']) ?> (<?= e($a['nomor_anggota']) ?>)</option>
                 <?php endforeach; ?>

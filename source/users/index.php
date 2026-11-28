@@ -26,14 +26,17 @@ require __DIR__ . '/../includes/header.php';
             <thead><tr><th>#</th><th>Nama</th><th>Username</th><th>Role</th><th>Terhubung ke Anggota</th><th>Aksi</th></tr></thead>
             <tbody>
             <?php if (empty($users)): ?>
-                <tr><td colspan="6" class="text-center text-muted py-3">Tidak ada data user.</td></tr>
+                <tr><td colspan="6"><div class="empty-state">
+                    <p>Belum ada user selain Anda.</p>
+                    <p><a href="<?= url('/users/tambah.php') ?>" class="btn btn-primary btn-sm">Tambah User</a></p>
+                </div></td></tr>
             <?php else: ?>
                 <?php foreach ($users as $i => $row): ?>
                 <tr>
                     <td><?= $i + 1 ?></td>
                     <td><?= e($row['name']) ?></td>
                     <td><?= e($row['username']) ?></td>
-                    <td><span class="badge bg-primary"><?= e($row['role_name']) ?></span></td>
+                    <td><strong><?= e($row['role_name']) ?></strong></td>
                     <td><?= e($row['nama_anggota'] ?? '-') ?></td>
                     <td>
                         <a href="<?= url('/users/edit.php') ?>?id=<?= (int) $row['id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i> Edit</a>

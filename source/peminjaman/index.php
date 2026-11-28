@@ -60,7 +60,12 @@ require __DIR__ . '/../includes/header.php';
             </tr></thead>
             <tbody>
             <?php if (empty($peminjaman)): ?>
-                <tr><td colspan="9" class="text-center text-muted py-3">Tidak ada data peminjaman.</td></tr>
+                <tr><td colspan="9"><div class="empty-state">
+                    <p>Belum ada peminjaman untuk filter ini.</p>
+                    <?php if (can($pdo, 'peminjaman.create')): ?>
+                        <p><a href="<?= url('/peminjaman/tambah.php') ?>" class="btn btn-primary btn-sm">Tambah Peminjaman</a></p>
+                    <?php endif; ?>
+                </div></td></tr>
             <?php else: ?>
                 <?php foreach ($peminjaman as $i => $row): $st = statusPeminjaman($row); ?>
                 <tr>
@@ -71,7 +76,7 @@ require __DIR__ . '/../includes/header.php';
                     <td><?= tglIndo($row['tanggal_jatuh_tempo']) ?></td>
                     <td><?= tglIndo($row['tanggal_kembali']) ?></td>
                     <td><?= rupiah($row['denda']) ?></td>
-                    <td><span class="badge bg-<?= $st['class'] ?>"><?= $st['label'] ?></span></td>
+                    <td><span class="stamp stamp-<?= $st['class'] ?>"><?= $st['label'] ?></span></td>
                     <td>
                         <?php if (can($pdo, 'peminjaman.edit') && empty($row['tanggal_kembali'])): ?>
                             <a href="<?= url('/peminjaman/edit.php') ?>?id=<?= (int) $row['id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i> Edit</a>

@@ -1,0 +1,448 @@
+/* ============================================================
+   Sistem Informasi Perpustakaan — design system
+   Arah visual: DESIGN.md di root proyek (kartu katalog / ledger).
+   Palet: paper #faf7f0, ink #201a17, hijau perpustakaan #1e4d3b,
+   amber #b45309 (hanya untuk terlambat/denda).
+   ============================================================ */
+
+:root {
+    --paper: #faf7f0;
+    --paper-2: #fffdf8;
+    --paper-3: #f3ede1;
+    --ink: #201a17;
+    --ink-soft: #57504a;
+    --muted: #6f675e;
+    --line: #e3dccf;
+    --line-strong: #cfc6b4;
+    --green: #1e4d3b;
+    --green-dark: #163a2c;
+    --green-tint: #e2ede6;
+    --green-tint-line: #bcd4c4;
+    --green-text: #17402f;
+    --amber: #b45309;
+    --amber-tint: #f7e8d3;
+    --amber-tint-line: #e3c39a;
+    --amber-text: #7c3a06;
+    --brick: #a93226;
+    --brick-tint: #f6e3e0;
+    --brick-tint-line: #e8c4bf;
+    --brick-text: #7e241b;
+    --neutral-tint: #efe9dc;
+    --neutral-text: #4a4238;
+    --radius-card: 10px;
+    --radius-control: 8px;
+
+    /* Bootstrap vars yang dipakai komponen bawaan */
+    --bs-body-bg: #faf7f0;
+    --bs-body-color: #201a17;
+    --bs-border-color: #e3dccf;
+    --bs-secondary-color: #6f675e;
+    --bs-link-color: #1e4d3b;
+    --bs-link-hover-color: #163a2c;
+}
+
+/* ---------- Base ---------- */
+
+body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+a { color: var(--green); }
+a:hover { color: var(--green-dark); }
+
+h1, h2, h3, .font-display {
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+code { color: var(--green-text); }
+
+hr { border-color: var(--line); opacity: 1; }
+
+/* Fokus terlihat (keyboard), kursor menunjuk aksi */
+:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 2px;
+}
+a, button, summary, select, label, input[type="checkbox"], input[type="radio"] { cursor: pointer; }
+button:disabled, input:disabled, select:disabled { cursor: not-allowed; }
+
+a, .btn, .lib-nav-link { transition: background-color .15s ease, color .15s ease, border-color .15s ease; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+/* ---------- Tombol ---------- */
+
+.btn {
+    border-radius: var(--radius-control);
+    font-weight: 600;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+}
+.btn-sm { min-height: 40px; padding: .3rem .65rem; font-size: .875rem; }
+@media (pointer: coarse) {
+    .btn-sm { min-height: 44px; }
+}
+
+.btn-primary, .btn-success {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+}
+.btn-primary:hover, .btn-primary:focus, .btn-success:hover, .btn-success:focus {
+    background: var(--green-dark);
+    border-color: var(--green-dark);
+    color: #fff;
+}
+.btn-primary:active, .btn-success:active {
+    background: var(--green-dark) !important;
+    border-color: var(--green-dark) !important;
+}
+
+.btn-secondary, .btn-warning {
+    background: transparent;
+    border-color: var(--line-strong);
+    color: var(--ink);
+}
+.btn-secondary:hover, .btn-secondary:focus, .btn-warning:hover, .btn-warning:focus {
+    background: var(--paper-3);
+    border-color: var(--ink-soft);
+    color: var(--ink);
+}
+
+.btn-danger {
+    background: transparent;
+    border-color: var(--brick);
+    color: var(--brick-text);
+}
+.btn-danger:hover, .btn-danger:focus {
+    background: var(--brick);
+    border-color: var(--brick);
+    color: #fff;
+}
+
+.btn-outline-secondary { border-color: var(--line-strong); color: var(--ink); }
+.btn-outline-secondary:hover, .btn-outline-secondary:focus { background: var(--paper-3); border-color: var(--ink-soft); color: var(--ink); }
+.btn-outline-primary, .btn-outline-success { border-color: var(--green); color: var(--green-text); }
+.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-success:hover, .btn-outline-success:focus { background: var(--green); border-color: var(--green); color: #fff; }
+.btn-outline-danger { border-color: var(--brick); color: var(--brick-text); }
+.btn-outline-danger:hover, .btn-outline-danger:focus { background: var(--brick); border-color: var(--brick); color: #fff; }
+.btn-outline-light { border-color: rgba(255,255,255,.5); color: #fff; }
+.btn-outline-light:hover, .btn-outline-light:focus { background: rgba(255,255,255,.12); color: #fff; }
+
+.btn-link { color: var(--green); text-decoration: none; }
+.btn-link:hover { color: var(--green-dark); text-decoration: underline; }
+
+/* Grup filter: tombol aktif terisi, sisanya garis */
+.btn-group > .btn { border-radius: 0; }
+.btn-group > .btn:first-child { border-radius: var(--radius-control) 0 0 var(--radius-control); }
+.btn-group > .btn:last-child { border-radius: 0 var(--radius-control) var(--radius-control) 0; }
+.btn-group > .btn.active {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+}
+
+/* ---------- Kartu ---------- */
+
+.card {
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    box-shadow: none;
+}
+.card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--line);
+    font-weight: 700;
+}
+.card-footer {
+    background: transparent;
+    border-top: 1px solid var(--line);
+}
+.card .table { margin-bottom: 0; }
+
+/* ---------- Tabel (buku besar: garis, tanpa belang) ---------- */
+
+/* Tabel lebar bisa di-scroll di dalam kartu pada layar kecil,
+   jadi halaman tidak pernah meluber ke samping. */
+.card-body { overflow-x: auto; }
+
+.table { color: var(--ink); font-size: .92rem; }
+.table thead th {
+    font-size: .72rem;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    border-bottom: 2px solid var(--line-strong);
+    white-space: nowrap;
+}
+.table > :not(caption) > * > * { padding: .5rem .6rem; }
+.table td, .table th { border-color: var(--line); }
+.table-striped > tbody > tr:nth-of-type(odd) > * { --bs-table-accent-bg: transparent; }
+.table-hover > tbody > tr:hover > * { --bs-table-accent-bg: var(--paper-3); }
+.table .badge { white-space: nowrap; }
+
+/* ---------- Form ---------- */
+
+.form-control, .form-select {
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-control);
+    background: #fff;
+    color: var(--ink);
+    padding: .55rem .8rem;
+    min-height: 44px;
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(30, 77, 59, .18);
+}
+.form-label { font-weight: 600; }
+.form-check-input { border-color: var(--line-strong); }
+.form-check-input:checked { background-color: var(--green); border-color: var(--green); }
+.form-check-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(30, 77, 59, .18); }
+.form-text { color: var(--muted); }
+
+/* ---------- Label status (cap stempel, bukan pil berpendar) ---------- */
+
+.badge {
+    font-weight: 700;
+    border-radius: 999px;
+    padding: .32em .7em;
+    border: 1px solid transparent;
+}
+.badge.bg-success { background: var(--green-tint) !important; color: var(--green-text) !important; border-color: var(--green-tint-line); }
+.badge.bg-primary { background: var(--neutral-tint) !important; color: var(--neutral-text) !important; border-color: var(--line-strong); }
+.badge.bg-danger { background: var(--brick-tint) !important; color: var(--brick-text) !important; border-color: var(--brick-tint-line); }
+.badge.bg-warning { background: var(--amber-tint) !important; color: var(--amber-text) !important; border-color: var(--amber-tint-line); }
+.badge.bg-secondary { background: var(--neutral-tint) !important; color: var(--neutral-text) !important; border-color: var(--line-strong); }
+
+/* ---------- Alert (garis kiri menandai status nyata) ---------- */
+
+.alert {
+    border-radius: var(--radius-card);
+    border: 1px solid var(--line);
+    border-left-width: 3px;
+    background: var(--paper-2);
+    color: var(--ink);
+}
+.alert-danger { border-left-color: var(--brick); }
+.alert-warning { border-left-color: var(--amber); }
+.alert-success { border-left-color: var(--green); }
+.alert-light { border-left-color: var(--line-strong); }
+.alert-heading { font-family: Georgia, "Times New Roman", serif; }
+
+/* ---------- Shell: sidebar + konten ---------- */
+
+.lib-layout { display: flex; align-items: stretch; min-height: 100vh; }
+
+.lib-content { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.lib-sidebar {
+    width: 264px;
+    flex-shrink: 0;
+    background: var(--paper);
+    border-right: 1px solid var(--line);
+}
+.lib-sidebar .offcanvas-body { padding: 1.25rem 1rem; display: flex; flex-direction: column; }
+.lib-brand {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.15;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+}
+.lib-brand:hover { color: var(--ink); }
+.lib-brand .bi { color: var(--green); font-size: 1.5rem; }
+.lib-brand small {
+    display: block;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: .66rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: .15rem;
+}
+
+.lib-nav-group {
+    font-size: .72rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    margin: 1.4rem .35rem .45rem;
+}
+.lib-nav-link {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .6rem .8rem;
+    min-height: 44px;
+    border-radius: var(--radius-control);
+    color: var(--ink-soft);
+    font-weight: 600;
+    text-decoration: none;
+}
+.lib-nav-link:hover { background: var(--paper-3); color: var(--ink); }
+.lib-nav-link.active { background: var(--green); color: #fff; }
+.lib-nav-link i { font-size: 1.05rem; line-height: 1; }
+
+.lib-user {
+    margin-top: auto;
+    border-top: 1px solid var(--line);
+    padding-top: 1rem;
+}
+.lib-user .lib-user-name { font-weight: 700; display: flex; align-items: center; gap: .5rem; }
+.lib-role-badge {
+    display: inline-block;
+    font-size: .72rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: .25em .65em;
+    background: var(--green-tint);
+    color: var(--green-text);
+    border: 1px solid var(--green-tint-line);
+}
+.lib-logout { width: 100%; margin-top: .8rem; }
+
+.lib-main { flex: 1; min-width: 0; padding: 1.75rem 2rem 2rem; }
+.page-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    font-size: 1.7rem;
+    line-height: 1.2;
+    margin-bottom: .35rem;
+}
+.page-subtitle { color: var(--muted); margin-bottom: 1.4rem; }
+
+.lib-topbar {
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    padding: .6rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+.lib-topbar .lib-brand { font-size: 1.15rem; }
+
+.lib-footer {
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: .85rem;
+    padding: 1rem 2rem;
+}
+
+@media (max-width: 991.98px) {
+    .lib-main { padding: 1.25rem 1rem 1.5rem; }
+    .page-title { font-size: 1.45rem; }
+    .lib-footer { padding: 1rem; }
+}
+
+/* ---------- Cap stempel untuk status ---------- */
+
+.stamp {
+    display: inline-block;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    padding: .18em .5em;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    transform: rotate(-1.5deg);
+    line-height: 1.35;
+    white-space: nowrap;
+}
+.stamp-danger { color: var(--brick-text); }
+.stamp-success { color: var(--green-text); }
+.stamp-primary { color: var(--neutral-text); }
+
+/* ---------- Dashboard: Meja Pustakawan ---------- */
+
+.desk { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; align-items: start; }
+@media (max-width: 991.98px) {
+    .desk { grid-template-columns: 1fr; }
+}
+.desk-col .card-header { display: flex; justify-content: space-between; align-items: center; }
+.desk-col-hot .card-header { background: var(--amber-tint); }
+.desk-col-hot .desk-count { color: var(--amber-text); }
+.desk-count { font-family: Georgia, "Times New Roman", serif; font-size: 1.25rem; font-weight: 700; line-height: 1; }
+.desk-row { display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; padding: .65rem 0; border-bottom: 1px solid var(--line); }
+.desk-row:last-child { border-bottom: 0; }
+.desk-row-main strong { display: block; }
+.desk-book { display: block; color: var(--muted); font-size: .88rem; }
+.desk-meta { font-size: .88rem; color: var(--muted); white-space: nowrap; padding-top: .1rem; }
+.desk-meta .denda { color: var(--amber-text); font-weight: 700; }
+.desk-empty { color: var(--muted); margin: 0; padding: .5rem 0; }
+.desk-more { display: inline-block; margin-top: .75rem; font-weight: 600; }
+.desk-totals { margin-top: 1rem; font-size: .9rem; }
+
+/* ---------- Login ---------- */
+
+.login-page { min-height: 100vh; display: flex; }
+.login-panel {
+    background: var(--green);
+    color: #f2efe7;
+    padding: 3rem 2.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 0 0 42%;
+    max-width: 460px;
+}
+.login-panel .lib-brand { color: #fff; font-size: 1.8rem; }
+.login-panel .lib-brand .bi { color: #cfe3d6; }
+.login-panel .lib-brand small { color: #bcd4c4; }
+.login-panel p { color: #d8e5dc; }
+.login-panel .login-rule { border-color: rgba(255, 255, 255, .25); margin: 1.5rem 0; }
+.login-form-col {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.25rem;
+}
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 12px 32px rgba(32, 26, 23, .12);
+}
+.login-card .card-body { padding: 1.75rem; }
+.demo-box {
+    background: var(--paper-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    padding: .85rem 1rem;
+    font-size: .88rem;
+}
+.demo-box p { margin-bottom: .35rem; }
+.demo-box p:last-child { margin-bottom: 0; }
+@media (max-width: 767.98px) {
+    .login-page { flex-direction: column; }
+    .login-panel { flex: none; max-width: none; padding: 2rem 1.5rem; }
+}
+
+/* ---------- State kosong ---------- */
+
+.empty-state { padding: 2.25rem 1rem; text-align: center; }
+.empty-state p { color: var(--muted); margin-bottom: .9rem; }
+.empty-state p:last-child { margin-bottom: 0; }
+
+/* ---------- Lainnya ---------- */
+
+.text-muted { color: var(--muted) !important; }
+.mono { font-family: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace; font-size: .92em; }

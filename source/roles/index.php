@@ -17,7 +17,7 @@ require __DIR__ . '/../includes/header.php';
 
 <p class="text-muted">
     Setiap role memiliki sekumpulan hak akses (permission). Permission dicek di sisi server pada
-    setiap halaman melalui <code>requirePermission()</code>, jadi menu yang disembunyikan saja tidak cukup —
+    setiap halaman melalui <code>requirePermission()</code>, jadi menu yang disembunyikan saja tidak cukup,
     akses langsung ke URL tanpa izin akan ditolak (403).
 </p>
 
@@ -29,7 +29,7 @@ require __DIR__ . '/../includes/header.php';
             <?php foreach ($roles as $i => $row): ?>
                 <tr>
                     <td><?= $i + 1 ?></td>
-                    <td><span class="badge bg-primary"><?= e($row['name']) ?></span></td>
+                    <td><strong><?= e($row['name']) ?></strong></td>
                     <td><?= e($row['description']) ?></td>
                     <td><?= (int) $row['jumlah_permission'] ?> permission</td>
                     <td>
